@@ -259,7 +259,7 @@ final class Control extends BaseControl
 		list(, $signal) = $this->getPresenter()->getSignal();
 
 		$name = Utils\Strings::substring($signal, 7);
-		$name{0} = strtolower($name{0});
+		$name[0] = strtolower($name[0]);
 
 		if (!$this['confirmer-' . $name]->isConfigured()) {
 			throw new Exceptions\InvalidArgumentException('Invalid confirmation control.');
