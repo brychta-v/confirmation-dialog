@@ -59,10 +59,6 @@ final class Control extends BaseControl
 		string $templateFile = NULL,
 		IConfirmer $confirmerFactory
 	) {
-		list(, , , $parent, $name) = func_get_args() + [NULL, NULL, NULL, NULL, NULL];
-
-		parent::__construct($parent, $name);
-
 		if ($layoutFile !== NULL) {
 			$this->setLayoutFile($layoutFile);
 		}

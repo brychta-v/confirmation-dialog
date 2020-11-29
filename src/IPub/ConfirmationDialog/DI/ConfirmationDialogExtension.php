@@ -22,6 +22,7 @@ use Nette\PhpGenerator as Code;
 
 use IPub\ConfirmationDialog\Components;
 use IPub\ConfirmationDialog\Storage;
+use Nette\Schema\Expect;
 
 /**
  * Confirmation dialog extension container
@@ -33,50 +34,53 @@ use IPub\ConfirmationDialog\Storage;
  */
 final class ConfirmationDialogExtension extends DI\CompilerExtension
 {
-	/**
-	 * @var array
-	 */
-	private $defaults = [
-		'layoutFile'   => NULL,
-		'templateFile' => NULL
-	];
+
+	public function getConfigSchema(): Nette\Schema\Schema
+	{
+		return Expect::structure([
+			'layoutFile' => Expect::string()->nullable(),
+			'templateFile' => Expect::string()->nullable(),
+		]);
+	}
 
 	/**
 	 * @return void
 	 */
 	public function loadConfiguration() : void
 	{
-		$config = $this->getConfig($this->defaults);
+		$config = $this->getConfig();
 		$builder = $this->getContainerBuilder();
 
 		// Session storage
 		$builder->addDefinition($this->prefix('storage'))
 			->setType(Storage\Session::class);
 
-		$confirmerFactory = $builder->addDefinition($this->prefix('confirmer'))
+		$confirmerFactory = $builder->addFactoryDefinition($this->prefix('confirmer'))
+			->setImplement(Components\IConfirmer::class);
+		$confirmerFactory->getResultDefinition()
 			->setType(Components\Confirmer::class)
-			->setImplement(Components\IConfirmer::class)
 			->setArguments([new Code\PhpLiteral('$templateFile')])
 			->setAutowired(FALSE)
-			->setInject(TRUE);
+			->addTag('nette.inject');
 
 		// Define components factories
-		$dialogFactory = $builder->addDefinition($this->prefix('dialog'))
+		$dialogFactory = $builder->addFactoryDefinition($this->prefix('dialog'))
+			->setImplement(Components\IControl::class);
+		$dialogFactory->getResultDefinition()
 			->setType(Components\Control::class)
-			->setImplement(Components\IControl::class)
 			->setArguments([
 				new Code\PhpLiteral('$layoutFile'),
 				new Code\PhpLiteral('$templateFile'),
 				$confirmerFactory,
 			])
-			->setInject(TRUE);
+			->addTag('nette.inject');
 
-		if ($config['layoutFile']) {
-			$dialogFactory->addSetup('$service->setLayoutFile(?)', [$config['layoutFile']]);
+		if ($config->layoutFile) {
+			$dialogFactory->getResultDefinition()->addSetup('$service->setLayoutFile(?)', [$config->layoutFile]);
 		}
 
-		if ($config['templateFile']) {
-			$dialogFactory->addSetup('$service->setTemplateFile(?)', [$config['templateFile']]);
+		if ($config->templateFile) {
+			$dialogFactory->getResultDefinition()->addSetup('$service->setTemplateFile(?)', [$config->templateFile]);
 		}
 	}
 

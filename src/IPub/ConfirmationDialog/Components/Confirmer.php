@@ -53,9 +53,7 @@ final class Confirmer extends ConfirmerAttributes
 		string $templateFile = NULL,
 		Storage\IStorage $storage
 	) {
-		list(, , $parent, $name) = func_get_args() + [NULL, NULL, NULL, NULL];
-
-		parent::__construct($storage, $parent, $name);
+		parent::__construct($storage);
 
 		if ($templateFile !== NULL) {
 			$this->setTemplateFile($templateFile);

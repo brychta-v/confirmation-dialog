@@ -1,4 +1,7 @@
 extension = xdebug.so
+extension = tokenizer.so
+extension = json.so
+extension = simplexml.so
 
 [xdebug]
 xdebug.enable = On
