@@ -56,24 +56,24 @@ final class ConfirmationDialogExtension extends DI\CompilerExtension
 			->setType(Storage\Session::class);
 
 		$confirmerFactory = $builder->addFactoryDefinition($this->prefix('confirmer'))
-			->setImplement(Components\IConfirmer::class);
+			->setImplement(Components\IConfirmer::class)
+			->addTag('nette.inject');
 		$confirmerFactory->getResultDefinition()
 			->setType(Components\Confirmer::class)
 			->setArguments([new Code\PhpLiteral('$templateFile')])
-			->setAutowired(FALSE)
-			->addTag('nette.inject');
+			->setAutowired(FALSE);
 
 		// Define components factories
 		$dialogFactory = $builder->addFactoryDefinition($this->prefix('dialog'))
-			->setImplement(Components\IControl::class);
+			->setImplement(Components\IControl::class)
+			->addTag('nette.inject');
 		$dialogFactory->getResultDefinition()
 			->setType(Components\Control::class)
 			->setArguments([
 				new Code\PhpLiteral('$layoutFile'),
 				new Code\PhpLiteral('$templateFile'),
 				$confirmerFactory,
-			])
-			->addTag('nette.inject');
+			]);
 
 		if ($config->layoutFile) {
 			$dialogFactory->getResultDefinition()->addSetup('$service->setLayoutFile(?)', [$config->layoutFile]);
